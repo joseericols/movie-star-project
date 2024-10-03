@@ -28,7 +28,21 @@ if ($type == "register") {
 
             //Verificar se o e-mail já está cadastrado no sistema.
             if ($userDao->findByEmail($email) === false) {
-                echo "Nenhum usuário foi encontrado";
+                $user = new User();
+
+                //criação de token e senha.
+                $userToken = $user->generateToken();
+                $finalPassword = $user->generatePassword($password);
+
+                $user->name = $name;
+                $user->lastname = $lastname;
+                $user->email = $email;
+                $user->password = $finalPassword;
+                $user->token = $userToken;
+
+                $auth = True;
+
+                $userDao->create($user, $auth);
             }
         } else {
             //Enviar mensagem de erro se as senhas não forem iguais.
