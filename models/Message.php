@@ -20,6 +20,18 @@ class Message
             header("Location: " . $_SERVER["HTTP_REFERER"]);
         }
     }
-    public function getMessage() {}
-    public function clearMessage() {}
+    public function getMessage()
+    {
+        if (!empty($_SESSION["msg"])) {
+            return [
+                "msg" => $_SESSION["msg"],
+                "type" => $_SESSION["type"]
+            ];
+        }
+    }
+    public function clearMessage()
+    {
+        $_SESSION["msg"] = "";
+        $_SESSION["type"] = "";
+    }
 }
