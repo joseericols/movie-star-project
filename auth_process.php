@@ -7,6 +7,8 @@ require_once("models/Message.php");
 require_once("dao/UserDAO.php");
 
 $message = new Message($BASE_URL);
+
+$userDao = new UserDAO($conn, $BASE_URL);
 //Resgata o tipo do forms.
 $type = filter_input(INPUT_POST, "type");
 
@@ -21,6 +23,17 @@ if ($type == "register") {
 
     //Verificação de dados minimos.
     if ($name && $lastname && $email && $password) {
+        //verificar se as senhas batem
+        if ($password == $confirmpassword) {
+
+            //Verificar se o e-mail já está cadastrado no sistema.
+            if ($userDao->findByEmail($email) === false) {
+                echo "Nenhum usuário foi encontrado";
+            }
+        } else {
+            //Enviar mensagem de erro se as senhas não forem iguais.
+            $message->setMessage("As senhas não são iguais.", "error", "back");
+        }
     } else {
         //Enviar uma mensagem de erro, de dados faltando.
         $message->setMessage("Por favor, preencha todos os campos.", "error", "back");
