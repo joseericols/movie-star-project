@@ -82,7 +82,27 @@ class UserDAO implements UserDAOInterface
             $this->message->setMessage("Seja bem-vindo!", "success", "editprofile.php");
         }
     }
-    public function authenticateUser($email, $password) {}
+    public function authenticateUser($email, $password)
+    {
+
+        $user = $this->findByEmail($email);
+
+        if ($user) {
+            //Ver se as senhas são iguais.
+            if (password_verify($password, $user->password)) {
+
+                //Gerar um token e inserir na session.
+                $token = $user->generateToken();
+                $this->setTokenSession($token);
+
+                //Atualizar token do usuário.
+                $user->token = $token;
+                $this->update($user);
+            } else {
+                return false;
+            }
+        }
+    }
     public function findByToken($token)
     {
         if ($token != "") {
