@@ -1,7 +1,5 @@
 <?php
 
-
-
 require_once("models/User.php");
 require_once("models/Message.php");
 
@@ -55,7 +53,26 @@ class UserDAO implements UserDAOInterface
         }
     }
     public function update(User $user) {}
-    public function verifyToken($protected = false) {}
+    public function verifyToken($protected = false)
+    {
+        if (!empty($_SESSION["token"])) {
+            //Pega o token da session.
+            $token = $_SESSION["token"];
+            $user = $this->findByToken($token);
+
+            if ($user) {
+                return $user;
+            } else if ($protected) {
+
+                //Redireciona usuario não autenticado.
+                $this->message->setMessage("Faça a autenticação para acessar essa página!", "error", "index.php");
+            }
+        } else if ($protected) {
+
+            //Redireciona usuario não autenticado.
+            $this->message->setMessage("Faça a autenticação para acessar essa página!", "error", "index.php");
+        }
+    }
     public function setTokenSession($token, $redirect = True)
     {
         //Salvar token na ssesion.
@@ -66,7 +83,24 @@ class UserDAO implements UserDAOInterface
         }
     }
     public function authenticateUser($email, $password) {}
-    public function findByToken($token) {}
+    public function findByToken($token)
+    {
+        if ($token != "") {
+            $stmt = $this->conn->prepare("SELECT * FROM users WHERE token = :token");
+            $stmt->bindParam(":token", $token);
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                $data = $stmt->fetch();
+                $user = $this->buildUser($data);
+                return $user;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
     public function findByEmail($email)
     {
         if ($email != "") {
@@ -87,4 +121,12 @@ class UserDAO implements UserDAOInterface
     }
     public function findById($id) {}
     public function changePassword(User $user) {}
+    public function destroyToken()
+    {
+        //Remove o token da session.
+        $_SESSION["token"] = "";
+
+        //Redireciona e apresenta a mensagem de sucesso.
+        $this->message->setMessage("Você fez o logout com sucesso!", "success", "index.php");
+    }
 }
