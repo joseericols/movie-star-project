@@ -52,7 +52,6 @@ $userData = $userDao->verifyToken(true);
         </form>
     </div>
 </div>
-
 <?php
 require_once("templates/footer.php");
 ?>
