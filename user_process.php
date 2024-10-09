@@ -17,7 +17,7 @@ if ($type === "update") {
 
     //Receber dados do post
     $name = filter_input(INPUT_POST, "name");
-    $lastname = filter_input(INPUT_POST, "last");
+    $lastname = filter_input(INPUT_POST, "lastname");
     $email = filter_input(INPUT_POST, "email");
     $bio = filter_input(INPUT_POST, "bio");
 
@@ -61,8 +61,28 @@ if ($type === "update") {
 
     $userDao->update($userData);
 
-    //atualizar senha do usuario
+    //atualizar senha do usuario.
 } else if ($type === "changepassword") {
+    //Receber dados do POST.
+    $password = filter_input(INPUT_POST, "password");
+    $confirmpassword = filter_input(INPUT_POST, "confirmpassword");
+
+    $userData = $userDao->verifyToken();
+    $id = $userData->id;
+
+    if ($password == $confirmpassword) {
+        //Instanciando novo objeto.
+        $user = new User();
+
+        $finalPassword = $user->generatePassword($password);
+
+        $user->password = $finalPassword;
+        $user->id = $id;
+
+        $userDao->changePassword($user);
+    } else {
+        $messsage->setMessage("As senhas não são iguais!", "error", "back");
+    }
 } else {
     $messsage->setMessage("Informações invalidas!", "error", "index.php");
 }

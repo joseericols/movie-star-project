@@ -85,7 +85,7 @@ class UserDAO implements UserDAOInterface
         $this->message->setMessage("Dados atualizados com sucesso!", "success", "editprofile.php");
     }
 
-    public function changePassword($user)
+    public function changePassword(User $user)
     {
 
         $stmt = $this->conn->prepare("UPDATE users SET 
