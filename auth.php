@@ -1,5 +1,7 @@
 <?php
-include_once("templates/header.php")
+
+include_once("templates/header.php");
+
 ?>
 <div id="main-container" class="container-fluid">
     <div class="col-md-12">
@@ -9,11 +11,11 @@ include_once("templates/header.php")
                 <form action="<?= $BASE_URL ?>auth_process.php" method="POST">
                     <input type="hidden" name="type" value="login">
                     <div class="form-group">
-                        <label for="email">E-mail</label>
+                        <label for="email">E-mail:</label>
                         <input type="email" class="form-control" id="email" name="email" placeholder="Digite seu e-mail">
                     </div>
                     <div class="form-group">
-                        <label for="password">Senha</label>
+                        <label for="password">Senha:</label>
                         <input type="password" class="form-control" id="password" name="password" placeholder="Digite sua senha">
                     </div>
                     <input type="submit" class="btn card-btn" value="Entrar">
@@ -24,24 +26,24 @@ include_once("templates/header.php")
                 <form action="<?= $BASE_URL ?>auth_process.php" method="POST">
                     <input type="hidden" name="type" value="register">
                     <div class="form-group">
-                        <label for="email">E-mail</label>
-                        <input type="email class=" form-control" id="email" name="email" placeholder="Digite seu e-mail">
+                        <label for="email">E-mail:</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Digite seu e-mail">
                     </div>
                     <div class="form-group">
-                        <label for="name">Nome</label>
+                        <label for="name">Nome:</label>
                         <input type="text" class="form-control" id="name" name="name" placeholder="Digite seu nome">
                     </div>
                     <div class="form-group">
-                        <label for="lastname">Sobrenome</label>
+                        <label for="lastname">Sobrenome:</label>
                         <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Digite seu sobrenome">
                     </div>
                     <div class="form-group">
-                        <label for="password">Senha</label>
+                        <label for="password">Senha:</label>
                         <input type="password" class="form-control" id="password" name="password" placeholder="Digite sua senha">
                     </div>
                     <div class="form-group">
-                        <label for="confirmpassword">Confirmação de senha</label>
-                        <input type="password" class="form-control" id="confirmpassword" name="password" placeholder="Confirme sua senha">
+                        <label for="confirmpassword">Confirmação de Senha:</label>
+                        <input type="password" class="form-control" id="confirmpassword" name="confirmpassword" placeholder="Confirme a senha">
                     </div>
                     <input type="submit" class="btn card-btn" value="Registrar">
                 </form>
@@ -50,5 +52,7 @@ include_once("templates/header.php")
     </div>
 </div>
 <?php
-include_once("templates/footer.php")
+
+include_once("templates/footer.php");
+
 ?>

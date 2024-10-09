@@ -1,14 +1,16 @@
 <?php
+
 require_once("globals.php");
 require_once("db.php");
 require_once("models/Message.php");
 require_once("dao/UserDAO.php");
 
 $message = new Message($BASE_URL);
+
 $flassMessage = $message->getMessage();
 
 if (!empty($flassMessage["msg"])) {
-    //limpar a mensagem
+    // Limpar a mensagem
     $message->clearMessage();
 }
 
@@ -17,7 +19,6 @@ $userDao = new UserDAO($conn, $BASE_URL);
 $userData = $userDao->verifyToken(false);
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -25,12 +26,12 @@ $userData = $userDao->verifyToken(false);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MovieStar</title>
-    <link rel="short icon" href="<?= $BASE_URL ?>/img/moviestar.ico">
-    <!-- BOOTSTRAP  -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.css" integrity="sha512-VcyUgkobcyhqQl74HS1TcTMnLEfdfX6BbjhH8ZBjFU9YTwHwtoRtWSGzhpDVEJqtMlvLM2z3JIixUOu63PNCYQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- FONTE AWESOME -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- CSS -->
+    <link rel="short icon" href="<?= $BASE_URL ?>img/moviestar.ico" />
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.css" integrity="sha512-drnvWxqfgcU6sLzAJttJv7LKdjWn0nxWCSbEAtxJ/YYaZMyoNLovG7lPqZRdhgL1gAUfa+V7tbin8y+2llC1cw==" crossorigin="anonymous" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+    <!-- CSS do projeto -->
     <link rel="stylesheet" href="<?= $BASE_URL ?>css/styles.css">
 </head>
 
@@ -44,7 +45,7 @@ $userData = $userDao->verifyToken(false);
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
                 <i class="fas fa-bars"></i>
             </button>
-            <form action="" method="GET" id="search-form" class="form-inline my-2 my-lg-0">
+            <form action="<?= $BASE_URL ?>search.php" method="GET" id="search-form" class="form-inline my-2 my-lg-0">
                 <input type="text" name="q" id="search" class="form-control mr-sm-2" type="search" placeholder="Buscar Filmes" aria-label="Search">
                 <button class="btn my-2 my-sm-0" type="submit">
                     <i class="fas fa-search"></i>
@@ -62,7 +63,7 @@ $userData = $userDao->verifyToken(false);
                             <a href="<?= $BASE_URL ?>dashboard.php" class="nav-link">Meus Filmes</a>
                         </li>
                         <li class="nav-item">
-                            <a href="<?= $BASE_URL ?>editprofile.php" class="nav-link">
+                            <a href="<?= $BASE_URL ?>editprofile.php" class="nav-link bold">
                                 <?= $userData->name ?>
                             </a>
                         </li>
@@ -80,6 +81,6 @@ $userData = $userDao->verifyToken(false);
     </header>
     <?php if (!empty($flassMessage["msg"])): ?>
         <div class="msg-container">
-            <p class="msg <?= $flassMessage['type'] ?>"><?= $flassMessage["msg"] ?></p>
+            <p class="msg <?= $flassMessage["type"] ?>"><?= $flassMessage["msg"] ?></p>
         </div>
     <?php endif; ?>
