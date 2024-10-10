@@ -5,6 +5,7 @@ class Movie
     public $id;
     public $title;
     public $description;
+    public $trailer;
     public $image;
     public $category;
     public $length;
