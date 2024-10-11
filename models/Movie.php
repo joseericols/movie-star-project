@@ -21,7 +21,7 @@ interface MovieDAOInterface
 {
     public function buildMovie($data);
     public function findAll();
-    public function getLatesMovies();
+    public function getLatestMovies();
     public function getMovieByCategory($category);
     public function getMovieByUserId($id);
     public function findById($id);
