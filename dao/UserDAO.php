@@ -1,7 +1,7 @@
 <?php
 
-include_once("models/User.php");
-include_once("models/Message.php");
+require_once("models/User.php");
+require_once("models/Message.php");
 
 class UserDAO implements UserDAOInterface
 {
@@ -37,11 +37,11 @@ class UserDAO implements UserDAOInterface
     public function create(User $user, $authUser = false)
     {
 
-        $stmt = $this->conn->prepare("INSERT INTO users (
-        name, lastname, email, password, token
-      ) VALUES (
-        :name, :lastname, :email, :password, :token
-      )");
+        $stmt = $this->conn->prepare("INSERT INTO users(
+          name, lastname, email, password, token
+        ) VALUES (
+          :name, :lastname, :email, :password, :token
+        )");
 
         $stmt->bindParam(":name", $user->name);
         $stmt->bindParam(":lastname", $user->lastname);
@@ -51,9 +51,8 @@ class UserDAO implements UserDAOInterface
 
         $stmt->execute();
 
-        // Autentica usuário caso venha da tela de registro
+        // Autenticar usuário, caso auth seja true
         if ($authUser) {
-
             $this->setTokenToSession($user->token);
         }
     }
@@ -61,7 +60,7 @@ class UserDAO implements UserDAOInterface
     public function update(User $user, $redirect = true)
     {
 
-        $stmt = $this->conn->prepare("UPDATE users SET 
+        $stmt = $this->conn->prepare("UPDATE users SET
         name = :name,
         lastname = :lastname,
         email = :email,
@@ -81,43 +80,76 @@ class UserDAO implements UserDAOInterface
 
         $stmt->execute();
 
-        // Redireciona e apresenta mensagem de sucesso
-        $this->message->setMessage("Dados atualizados com sucesso!", "success", "editprofile.php");
+        if ($redirect) {
+
+            // Redireciona para o perfil do usuario
+            $this->message->setMessage("Dados atualizados com sucesso!", "success", "editprofile.php");
+        }
     }
 
-    public function changePassword(User $user)
+    public function verifyToken($protected = false)
     {
 
-        $stmt = $this->conn->prepare("UPDATE users SET 
-        password = :password
-        WHERE id = :id
-      ");
+        if (!empty($_SESSION["token"])) {
 
-        $stmt->bindParam(":password", $user->password);
-        $stmt->bindParam(":id", $user->id);
+            // Pega o token da session
+            $token = $_SESSION["token"];
 
-        $stmt->execute();
+            $user = $this->findByToken($token);
 
-        // Redireciona e apresenta mensagem de sucesso
-        $this->message->setMessage("Senha atualizada!", "success", "editprofile.php");
+            if ($user) {
+                return $user;
+            } else if ($protected) {
+
+                // Redireciona usuário não autenticado
+                $this->message->setMessage("Faça a autenticação para acessar esta página!", "error", "index.php");
+            }
+        } else if ($protected) {
+
+            // Redireciona usuário não autenticado
+            $this->message->setMessage("Faça a autenticação para acessar esta página!", "error", "index.php");
+        }
     }
 
-    public function findByToken($token)
+    public function setTokenToSession($token, $redirect = true)
     {
 
-        $stmt = $this->conn->prepare("SELECT * FROM users WHERE token = :token");
+        // Salvar token na session
+        $_SESSION["token"] = $token;
 
-        $stmt->bindParam(":token", $token);
+        if ($redirect) {
 
-        $stmt->execute();
+            // Redireciona para o perfil do usuario
+            $this->message->setMessage("Seja bem-vindo!", "success", "editprofile.php");
+        }
+    }
 
-        if ($stmt->rowCount() > 0) {
+    public function authenticateUser($email, $password)
+    {
 
-            $data = $stmt->fetch();
-            $user = $this->buildUser($data);
+        $user = $this->findByEmail($email);
 
-            return $user;
+        if ($user) {
+
+            // Checar se as senhas batem
+            if (password_verify($password, $user->password)) {
+
+                // Gerar um token e inserir na session
+                $token = $user->generateToken();
+
+                $this->setTokenToSession($token, false);
+
+                // Atualizar token no usuário
+                $user->token = $token;
+
+                $this->update($user, false);
+
+                return true;
+            } else {
+                return false;
+            }
         } else {
+
             return false;
         }
     }
@@ -142,85 +174,9 @@ class UserDAO implements UserDAOInterface
             } else {
                 return false;
             }
-        }
-
-        return false;
-    }
-
-    public function setTokenToSession($token, $redirect = true)
-    {
-
-        // Save token to session
-        $_SESSION["token"] = $token;
-
-        if ($redirect) {
-
-            // Redireciona e apresenta mensagem de sucesso
-            $this->message->setMessage("Seja bem-vindo!", "success", "editprofile.php");
-        }
-    }
-
-    public function verifyToken($protected = true)
-    {
-
-
-        if (!empty($_SESSION["token"])) {
-
-            // Pega o token da session
-            $token = $_SESSION["token"];
-
-            $user = $this->findByToken($token);
-
-            if ($user) {
-                return $user;
-            } else if ($protected) {
-
-                // Redireciona para home caso não haja usuário
-                $this->message->setMessage("Faça a autenticação para acessar esta página.", "error", "index.php");
-            }
         } else {
             return false;
         }
-    }
-
-    public function authenticateUser($email, $password)
-    {
-
-        $user = new User();
-
-        $user = $this->findByEmail($email);
-
-        // Checa se o usuário existe
-        if ($user) {
-
-            // Checa se a senha bate
-            if (password_verify($password, $user->password)) {
-
-                // Gera o token e coloca na session, sem redirecionar
-                $token = $user->generateToken();
-
-                $this->setTokenToSession($token, false);
-
-                // Atualiza token do usuário
-                $user->token = $token;
-
-                $this->update($user);
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function destroyToken()
-    {
-
-        // Remove o token
-        $_SESSION["token"] = "";
-
-        // Redireciona e apresenta mensagem de sucesso
-        $this->message->setMessage("Você fez o logout com sucesso!", "success", "index.php");
     }
 
     public function findById($id)
@@ -243,6 +199,60 @@ class UserDAO implements UserDAOInterface
             } else {
                 return false;
             }
+        } else {
+            return false;
         }
+    }
+
+    public function findByToken($token)
+    {
+
+        if ($token != "") {
+
+            $stmt = $this->conn->prepare("SELECT * FROM users WHERE token = :token");
+
+            $stmt->bindParam(":token", $token);
+
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+
+                $data = $stmt->fetch();
+                $user = $this->buildUser($data);
+
+                return $user;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public function destroyToken()
+    {
+
+        // Remove o token da session
+        $_SESSION["token"] = "";
+
+        // Redirecionar e apresentar a mensagem de sucesso
+        $this->message->setMessage("Você fez o logout com sucesso!", "success", "index.php");
+    }
+
+    public function changePassword(User $user)
+    {
+
+        $stmt = $this->conn->prepare("UPDATE users SET
+        password = :password
+        WHERE id = :id
+      ");
+
+        $stmt->bindParam(":password", $user->password);
+        $stmt->bindParam(":id", $user->id);
+
+        $stmt->execute();
+
+        // Redirecionar e apresentar a mensagem de sucesso
+        $this->message->setMessage("Senha alterada com sucesso!", "success", "editprofile.php");
     }
 }
